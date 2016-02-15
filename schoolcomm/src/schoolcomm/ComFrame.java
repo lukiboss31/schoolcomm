@@ -7,6 +7,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.net.InetAddress;
 
@@ -29,11 +31,10 @@ public class ComFrame extends JFrame {
 	private JTextArea textArea = new JTextArea();
 	private JButton sendButton = new JButton(">");
 	private String myUsername;
-
+	private User user;
 	private ComWriter comWriter;
-	private String hostName;
 	private int remotePort;
-	private String ipAddr;
+	private MainFrame mf;
 
 	/**
 	 * Launch the application.
@@ -48,7 +49,7 @@ public class ComFrame extends JFrame {
 					User u = new User();
 					u.remotePort = remotePort;
 					u.port = myPort;
-					ComFrame frame = new ComFrame(u);
+					ComFrame frame = new ComFrame(u, null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -57,13 +58,7 @@ public class ComFrame extends JFrame {
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 * 
-	 * @throws IOException
-	 */
-
-	public ComFrame(User user) throws IOException {
+	public ComFrame(final User user, final MainFrame mf) throws IOException {
 
 		if (user.hostName == null) {
 			InetAddress addr = InetAddress.getLocalHost();
@@ -73,7 +68,9 @@ public class ComFrame extends JFrame {
 			user.hostName = addr.getHostName();
 		}
 		this.remotePort = user.remotePort;
-		setTitle("Chating to " + user.username + " on host: " + user.hostName);
+		this.mf = mf;
+		this.user = user;
+		setTitle("Chatting to " + user.username + " on host: " + user.hostName);
 
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setBounds(100, 100, 450, 450);
@@ -128,9 +125,51 @@ public class ComFrame extends JFrame {
 		gbc_button.gridy = 3;
 		contentPane.add(sendButton, gbc_button);
 
-		System.out.println("Ip Adresse: " + ipAddr);
-		System.out.println("Hostname  : " + hostName);
+		System.out.println("Ip Adresse: " + user.ipAddr);
+		System.out.println("Hostname  : " + user.hostName);
+		this.addWindowListener(new WindowListener() {
 
+			@Override
+			public void windowOpened(WindowEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowIconified(WindowEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				mf.removeFrame(user.hostName);
+			}
+
+			@Override
+			public void windowClosed(WindowEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void windowActivated(WindowEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+		});
 		// server = new ComListener(myPort, textArea);
 		// server.start();
 	}
@@ -141,11 +180,11 @@ public class ComFrame extends JFrame {
 			return;
 		}
 		inputField.setText("");
-		String newLine = myUsername + ": " + newText;
+		String newLine = System.getProperty("user.name") + ": " + newText;
 
 		setText(newLine);
 		try {
-			comWriter = new ComWriter(hostName, remotePort);
+			comWriter = new ComWriter(user.hostName, remotePort);
 			// comWriter.send("test!!!");
 
 			comWriter.send(newLine);

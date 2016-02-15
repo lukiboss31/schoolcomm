@@ -285,10 +285,11 @@ public class MainFrame extends JFrame {
 	private ComFrame createComFrame(User user) {
 		ComFrame commFrame = null;
 		try {
-			commFrame = new ComFrame(user);
+			commFrame = new ComFrame(user, this);
 			commFrame.setVisible(true);
 			commFrame.toFront();
 			frames.put(user.username, commFrame);
+			System.out.println(frames.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -301,6 +302,10 @@ public class MainFrame extends JFrame {
 		String[] split = text.split(":");
 		String username = split[0];
 		return username;
+	}
+
+	public void removeFrame(String hostName) {
+		frames.remove(hostName);
 	}
 
 }
